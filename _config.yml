@@ -13,7 +13,7 @@ author :
 baseurl : /original
 homepage : /index.html
 graphs : /original/include/graphs
-static : http://wellwy.github.io/static/include
+static : http://wellwy.github.io/static
 
 comments: true
 googleAnalytics : true
