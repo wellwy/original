@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+	    <meta charset="utf-8">
+	    <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=1.0, maximum-scale=1">
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    	<link rel="stylesheet" href="http://wellwy.github.io/static/include/metro/css/metro-bootstrap.css">
+    	<link rel="stylesheet" href="http://wellwy.github.io/static/include/metro/js/prettify/prettify.css">
+    	<script src="http://wellwy.github.io/static/include/metro/js/jquery/jquery.min.js"></script>
+    	<script src="http://wellwy.github.io/static/include/metro/js/jquery/jquery.widget.min.js"></script>
+    	<script src="http://wellwy.github.io/static/include/metro/js/prettify/prettify.js"></script>
+	    <title> Export Taotao </title>
+	</head>
+	<body  class="metro" >
+		<!-- 占位，这样滚动的时候，就不会像之前那样会闪一下了 -->
+		<header class="bg-dark border" data-load="header.html">
+			<div class="navigation-bar dark ">
+			    <div class="navigation-bar-content container">
+			      	<span > 
+			        </span>
+			        <span class="element-divider"></span>
+				</div>
+			</div>
+
+		</header>
+		<!-- 真正的头部 -->
+		<header class="bg-dark border" data-load="header.html">
+			<div class="navigation-bar dark fixed-top opacity shadow">
+			    <div class="navigation-bar-content container">
+			        <a href="/original/index.html"><span class="element brand">
+			        <span class="icon-grid-view"></span>
+			            <!-- <img class="place-left" src="/original/images/logo32.png" style="height: 20px"/> -->
+			           会飞de树's Code Blocks 
+			        </span></a>
+			        <span class="element-divider"></span>
+			        <a title="GitHub" href="https://github.com/wellwy/original" class="element place-right"><span class="icon-github-6"></span></a>
+				</div>
+			</div>
+		</header>
+		
+
+		<div class="container">
+			<div class="page-region" >
+    <div class="page-region-content">
+
+        <h1>
+            <a  href="/original/index.html">
+                <i class="icon-arrow-left-3 fg-darker smaller"></i>
+            </a>
+            Export Taotao 
+            <small class="on-right">02 Dec 2013</small>
+        </h1>
+        <!-- <ul class="unstyled"><li>目标</li><li>思路</li><li>问题</li><li>方法</li><li>后记</li></ol> -->
+		<h2>目标</h2>
+
+<p>旧版滔滔导出。</p>
+
+<h2>思路</h2>
+
+<p>简单的看了下js里的数据。发现他会把数据分页的load到js中，然后缓存起来，分页渲染。那么如果想导出这部分数据，就可以直接把js里的数据打印出来即可。</p>
+
+<h2>问题</h2>
+
+<p>旧版滔滔 <a href="http://ctc.qzs.qq.com/qzone/blog/blog_mood.html">地址</a>.</p>
+
+<p>目前旧版滔滔有bug，最多只能展示148 个（貌似非必现。看了下代码，获取总量的cgi返回的数据有误。）</p>
+
+<p>如下：</p>
+
+<pre><code>http://e.qzone.qq.com/cgi-bin/cgi_emotion_indexcount.cgi?uin=XXXX&amp;r=0.5181506380904466
+</code></pre>
+
+<p>因此导致在计算页数时，计算错误。无法看到后面的页数。而js开放的接口没有几个，在不修改js文件的前提下，能做的操作相当之少。</p>
+
+<p>然后看到了另外一个cgi：</p>
+
+<pre><code>http://e.qzone.qq.com/cgi-bin/cgi_emotion_indexlist.cgi?uin=XXXX&amp;emotionarchive=-1
+</code></pre>
+
+<p>这个cgi最后有个参数<code>emotionarchive=-1</code> ，这个<code>emotionarchive</code>的值代表页数，从1~n，如果为-1，则显示最后一页的数据。</p>
+
+<h2>方法</h2>
+
+<h3>Step0：准备</h3>
+
+<ul>
+<li>登录自己的QZone</li>
+<li>访问旧版滔滔<a href="http://ctc.qzs.qq.com/qzone/blog/blog_mood.html">地址</a>.</li>
+</ul>
+
+
+<h3>Step1：确定总条数</h3>
+
+<ul>
+<li><p>在浏览器中贴上获取列表的CGI</p>
+
+<p>  http://e.qzone.qq.com/cgi-bin/cgi_emotion_indexlist.cgi?uin=XXXX&amp;emotionarchive=-1</p></li>
+<li><p>记得把uin的参数换成刚才登录的QQ号。</p></li>
+<li>看返回的结果，记下自己的<code>rss-&gt;channel-&gt;item[].id</code>的最大值。</li>
+</ul>
+
+
+<h3>Step2：修改总条数的Bug</h3>
+
+<ul>
+<li>打开浏览器的控制台。</li>
+<li>输入<code>TT.data.total = xxx</code>，xxx为刚才的记下来的id的最大值。</li>
+</ul>
+
+
+<h3>Step3：加载数据</h3>
+
+<p>由于很多方法不能直接调用，所以加载数据的最好的办法就是直接点下一页，一路点下去。但是如果页数比较多，就比较恶心了。。所以这里写了一个循环。直接调用下一页的函数即可。</p>
+
+<p>同样在控制台输入以下代码</p>
+
+<pre><code>for(var n = 0;n &lt; Math.ceil(TT.data.total/6);n++){
+    setTimeout(TT.public.go(true),500);
+}
+</code></pre>
+
+<p>ps：如果中途报错，可能是频率限制导致的，点确定后继续。可以无视。最后如果因为中途出错，有几页没有翻完，手工点下翻页即可。</p>
+
+<h3>Step4：导出数据</h3>
+
+<p>现在数据都已经加载到了内存中，只需要导出即可。这里用了最简单的办法。直接在控制台输出。代码如下</p>
+
+<pre><code>for(var i = 0 ; i &lt; TT.data.total ;i++)
+{
+    if(TT.data.list[i]){
+    console.log(TT.data.list[i]._id +"\t"+TT.data.list[i].expressionTitle+"\t"+TT.data.list[i].pubTimeString+"\t"+TT.data.list[i].title.value);
+    }
+}
+</code></pre>
+
+<p>把内容copy出来，因为用<code>\t</code>分隔，因此可以直接贴到excel里。Enjoy It！</p>
+
+<h2>后记</h2>
+
+<p>至于评论。没有找到相应的cgi。暂时无解了。。</p>
+
+    </div>
+</div>
+<!-- disqus -->
+
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'wellwygithubblog'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+
+		</div>
+		<div style="height: 80px;"></div>
+    </body>
+    	<script type="text/javascript">
+    	$(window).load(function(){
+		     $("code").addClass("prettyprint");
+		     prettyPrint();
+		})
+    	</script>
+    	
+  
+  <!-- Google Analytics-->
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-44963943-1', 'wellwy.github.io');
+  ga('send', 'pageview');
+</script>
+
+
+
+</html>
