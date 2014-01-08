@@ -2,7 +2,7 @@ markdown: rdiscount
 pygments: true
 permalink: :categories/:year/:month/:day/:title 
 #permalink: :categories/:title 
-title : 会飞de树's Code Blocks
+title : 会飞de树's Original Blogs
 author :
   name : 会飞de树
   email : wellwy@gmail.com
