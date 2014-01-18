@@ -13,7 +13,7 @@ author :
 baseurl : /original
 homepage : /index.html
 graphs : /original/include/graphs
-static_metro : http://wellwy.tk/static/include/metro
+static_metro : /static/include/metro
 
 comments: true
 googleAnalytics : true
